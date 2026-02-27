@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 from app.services.scam_classifier import predict_message
 from app.services.entity_extractor import extract_entities
 from app.services.graph_builder import (
@@ -9,6 +10,11 @@ from app.services.graph_builder import (
 )
 
 router = APIRouter()
+
+
+# ✅ Proper Request Model (FIX)
+class MessageRequest(BaseModel):
+    message: str
 
 
 # 🔥 Risk weight by entity type
@@ -25,9 +31,11 @@ RISK_WEIGHTS = {
 
 
 @router.post("/predict")
-def predict(data: dict):
-    message = data.get("message", "").strip()
+def predict(data: MessageRequest):
+    # ✅ Now FastAPI properly reads body
+    message = data.message.strip()
 
+    # Extra safety (optional)
     if not message:
         return {"error": "Message is required"}
 
@@ -45,14 +53,13 @@ def predict(data: dict):
     graph_data = get_graph_data(G)
 
     # 4️⃣ Risk Score (Weighted + Centrality Based)
-
     risk_score = 0
     entity_count = 0
 
     for node in graph_data["nodes"]:
         if node["type"] != "message":
             weight = RISK_WEIGHTS.get(node["type"], 0.3)
-            risk_score += weight * node["centrality_score"]
+            risk_score += weight * node.get("centrality_score", 0)
             entity_count += 1
 
     if entity_count > 0:
@@ -69,8 +76,7 @@ def predict(data: dict):
     else:
         risk_level = "Low"
 
-    # 5️⃣ Graph Meaning (REAL INTERPRETATION)
-
+    # 5️⃣ Graph Meaning
     clusters = set(
         node["cluster"]
         for node in graph_data["nodes"]
