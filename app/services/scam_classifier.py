@@ -1,7 +1,6 @@
 import os
 import pickle
 
-# Get base directory (backend/)
 BASE_DIR = os.path.dirname(
     os.path.dirname(
         os.path.dirname(os.path.abspath(__file__))
@@ -11,7 +10,6 @@ BASE_DIR = os.path.dirname(
 model_path = os.path.join(BASE_DIR, "ml_model", "scam_model.pkl")
 vectorizer_path = os.path.join(BASE_DIR, "ml_model", "vectorizer.pkl")
 
-# Load model safely
 with open(model_path, "rb") as f:
     model = pickle.load(f)
 

@@ -36,7 +36,6 @@ def extract_entities(text: str):
     ifsc_codes = re.findall(ifsc_pattern, text)
     ip_addresses = re.findall(ip_pattern, text)
 
-    # 🚨 Remove emails from UPI list (important fix)
     upi_ids = [u for u in upi_ids if u not in emails]
 
     return {

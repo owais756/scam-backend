@@ -2,7 +2,6 @@ import networkx as nx
 import community as community_louvain
 import uuid
 
-# Graph will be recreated per request
 def build_graph_from_entities(entities: dict):
     G = nx.Graph()
 

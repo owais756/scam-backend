@@ -11,13 +11,9 @@ from app.services.graph_builder import (
 
 router = APIRouter()
 
-
-# ✅ Proper Request Model (FIX)
 class MessageRequest(BaseModel):
     message: str
 
-
-# 🔥 Risk weight by entity type
 RISK_WEIGHTS = {
     "upi_ids": 0.9,
     "bank_accounts": 0.9,
@@ -29,30 +25,18 @@ RISK_WEIGHTS = {
     "ip_addresses": 0.4
 }
 
-
 @router.post("/predict")
 def predict(data: MessageRequest):
-    # ✅ Now FastAPI properly reads body
     message = data.message.strip()
-
-    # Extra safety (optional)
     if not message:
         return {"error": "Message is required"}
-
-    # 1️⃣ ML prediction
     result = predict_message(message)
-
-    # 2️⃣ Extract entities
     entities = extract_entities(message)
     entities = {k: v for k, v in entities.items() if v}
-
-    # 3️⃣ Build graph
     G = build_graph_from_entities(entities)
     graph_info = get_graph_info(G)
     central_nodes = get_central_nodes(G)
     graph_data = get_graph_data(G)
-
-    # 4️⃣ Risk Score (Weighted + Centrality Based)
     risk_score = 0
     entity_count = 0
 
@@ -76,7 +60,6 @@ def predict(data: MessageRequest):
     else:
         risk_level = "Low"
 
-    # 5️⃣ Graph Meaning
     clusters = set(
         node["cluster"]
         for node in graph_data["nodes"]
@@ -100,7 +83,7 @@ def predict(data: MessageRequest):
         behavior = "Low-risk structural pattern."
 
     graph_summary = (
-        f"This graph shows a star-shaped communication network. "
+        f"This graph shows a communication network. "
         f"The white node represents the original message. "
         f"{structure_text} "
         f"Most influential entity: '{top_entity}'. "
