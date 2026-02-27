@@ -7,8 +7,8 @@ app = FastAPI(title="AI Scam Detection System")
 # CORS middleware 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https://scam-network-detection-system.*\.vercel\.app",
-    allow_credentials=True,
+    allow_origins= ["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
