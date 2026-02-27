@@ -15,13 +15,11 @@ def build_graph_from_entities(entities: dict):
 
     return G
 
-
 def get_graph_info(G):
     return {
         "total_nodes": G.number_of_nodes(),
         "total_edges": G.number_of_edges()
     }
-
 
 def get_central_nodes(G):
     if G.number_of_nodes() == 0:
@@ -45,14 +43,12 @@ def get_central_nodes(G):
 
     return result[:5]
 
-
 def detect_clusters(G):
     if G.number_of_nodes() == 0:
         return {}
 
     partition = community_louvain.best_partition(G)
     return partition
-
 
 def get_graph_data(G):
     centrality = nx.degree_centrality(G)

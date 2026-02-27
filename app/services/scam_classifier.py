@@ -16,7 +16,6 @@ with open(model_path, "rb") as f:
 with open(vectorizer_path, "rb") as f:
     vectorizer = pickle.load(f)
 
-
 def predict_message(message: str):
     print("Incoming:", message)
 
