@@ -20,11 +20,16 @@ with open(vectorizer_path, "rb") as f:
 
 
 def predict_message(message: str):
+    print("Incoming:", message)
+
     vec = vectorizer.transform([message])
     prediction = model.predict(vec)
     probability = model.predict_proba(vec)
 
+    print("Raw prediction:", prediction)
+    print("Probabilities:", probability)
+
     return {
-        "prediction": prediction[0],
+        "prediction": str(prediction[0]),
         "confidence": float(max(probability[0]))
     }
