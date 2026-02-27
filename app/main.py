@@ -4,19 +4,18 @@ from app.routes import scam_routes
 
 app = FastAPI(title="AI Scam Detection System")
 
-# ✅ CORS middleware add karo
+# CORS middleware 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "http://localhost:5175"
+        "https://scam-network-detection-system.vercel.app"
     ],  # frontend ports
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include routes
 app.include_router(scam_routes.router)
 
 @app.get("/")
