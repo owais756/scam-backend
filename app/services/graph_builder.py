@@ -4,7 +4,6 @@ import uuid
 
 def build_graph_from_entities(entities: dict):
     G = nx.Graph()
-
     message_id = f"msg_{uuid.uuid4().hex[:6]}"
     G.add_node(message_id, type="message")
 
@@ -12,63 +11,36 @@ def build_graph_from_entities(entities: dict):
         for value in values:
             G.add_node(value, type=entity_type)
             G.add_edge(message_id, value)
-
     return G
 
 def get_graph_info(G):
-    return {
-        "total_nodes": G.number_of_nodes(),
-        "total_edges": G.number_of_edges()
-    }
+    return {"total_nodes": G.number_of_nodes(), "total_edges": G.number_of_edges()}
 
 def get_central_nodes(G):
-    if G.number_of_nodes() == 0:
-        return []
-
+    if G.number_of_nodes() == 0: return []
     centrality = nx.degree_centrality(G)
-
-    sorted_nodes = sorted(
-        centrality.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
+    sorted_nodes = sorted(centrality.items(), key=lambda x: x[1], reverse=True)
+    
     result = []
     for node, score in sorted_nodes:
-        if G.nodes[node]["type"] != "message":
-            result.append({
-                "entity": node,
-                "centrality_score": round(score, 3)
-            })
-
+        if G.nodes[node].get("type") != "message":
+            result.append({"entity": node, "centrality_score": round(score, 3)})
     return result[:5]
 
 def detect_clusters(G):
-    if G.number_of_nodes() == 0:
-        return {}
-
-    partition = community_louvain.best_partition(G)
-    return partition
+    if G.number_of_nodes() < 2: return {}
+    return community_louvain.best_partition(G)
 
 def get_graph_data(G):
-    centrality = nx.degree_centrality(G)
     clusters = detect_clusters(G)
-
     nodes = []
     for node, data in G.nodes(data=True):
         nodes.append({
             "id": node,
             "type": data.get("type", "unknown"),
-            "centrality_score": round(centrality.get(node, 0), 3),
+            "node_risk": data.get("node_risk", 0),
             "cluster": clusters.get(node, 0)
         })
 
-    links = [
-        {"source": u, "target": v}
-        for u, v in G.edges()
-    ]
-
-    return {
-        "nodes": nodes,
-        "links": links
-    }
+    links = [{"source": u, "target": v} for u, v in G.edges()]
+    return {"nodes": nodes, "links": links}
