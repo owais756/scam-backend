@@ -36,22 +36,16 @@ def predict(data: MessageRequest):
     G = build_graph_from_entities(entities)
     graph_info = get_graph_info(G)
 
-    # compute centrality once so we can use it for both summaries and per-node risk
     import networkx as _nx
     centrality = _nx.degree_centrality(G)
     central_nodes = get_central_nodes(G)
 
-    # build the raw graph data and then inject a risk score (0-100) on each node
     graph_data = get_graph_data(G)
     risk_score = 0
     entity_count = 0
 
-    # annotate each node with a normalized risk value based on type weight and centrality
-    # helper to build a simple per-entity risk profile
     import random
     def make_profile(entity_type):
-        # six dimensions: url reputation, sender history, content phish probability,
-        # behavioral anomalies, monetary value, social urgency.
         base = RISK_WEIGHTS.get(entity_type, 0.5)
         dims = [
             "url_reputation",
@@ -63,7 +57,6 @@ def predict(data: MessageRequest):
         ]
         prof = {}
         for d in dims:
-            # derive from base with some jitter
             prof[d] = max(0, min(100, round(base * 100 + random.uniform(-20, 20), 2)))
         return prof
 
@@ -88,7 +81,6 @@ def predict(data: MessageRequest):
         risk_score = 0
 
     risk_score = round(risk_score, 3)
-    # also provide percentage version for consumption by frontend if needed
     risk_score_pct = round(risk_score * 100, 2)
 
     if risk_score > 0.6:

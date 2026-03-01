@@ -4,7 +4,6 @@ from app.routes import scam_routes
 
 app = FastAPI(title="AI Scam Detection System")
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins= ["*"],
